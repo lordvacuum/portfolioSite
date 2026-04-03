@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jasky — portfolio</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>$</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --fg: #f0f0f0;
+      --dim: #555;
+      --accent: #f0f0f0;
+      --prompt: #888;
+      --link: #7eb8f7;
+      --selection: #333;
+      --cursor: #f0f0f0;
+    }
+    .theme-light {
+      --bg: #fafafa; --fg: #111; --dim: #888; --accent: #111;
+      --prompt: #555; --link: #1a5fb4; --selection: #ddd; --cursor: #111;
+    }
+    .theme-dracula {
+      --bg: #282a36; --fg: #f8f8f2; --dim: #6272a4; --accent: #bd93f9;
+      --prompt: #ff79c6; --link: #8be9fd; --selection: #44475a; --cursor: #bd93f9;
+    }
+    .theme-highcontrast {
+      --bg: #000; --fg: #ffff00; --dim: #888800; --accent: #ffff00;
+      --prompt: #00ff00; --link: #00ffff; --selection: #333300; --cursor: #ffff00;
+    }
+    .theme-nord {
+      --bg: #2e3440; --fg: #eceff4; --dim: #4c566a; --accent: #88c0d0;
+      --prompt: #81a1c1; --link: #a3be8c; --selection: #3b4252; --cursor: #88c0d0;
+    }
+    .theme-solarized {
+      --bg: #002b36; --fg: #839496; --dim: #586e75; --accent: #b58900;
+      --prompt: #2aa198; --link: #268bd2; --selection: #073642; --cursor: #b58900;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'JetBrains Mono', 'Fira Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      min-height: 100vh;
+      padding: 2rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    #terminal { max-width: 720px; margin: 0 auto; }
+
+    .header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--dim);
+      padding-bottom: 1.5rem;
+    }
+    .header .name { font-size: 20px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+    .header .tagline { color: var(--dim); font-size: 13px; }
+
+    .bio { margin-bottom: 2rem; line-height: 1.8; }
+    .bio p { margin-bottom: 0.5rem; }
+
+    .hint { color: var(--dim); font-size: 12px; margin-bottom: 2rem; }
+    .hint span {
+      color: var(--fg);
+      border: 1px solid var(--dim);
+      padding: 1px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      display: inline-block;
+      margin: 2px;
+    }
+    .hint span:hover { border-color: var(--accent); color: var(--accent); }
+
+    #output { margin-bottom: 1rem; }
+
+    .line { margin-bottom: 0.15rem; }
+    .line.cmd { color: var(--prompt); }
+    .line.cmd::before { content: '$ '; color: var(--accent); }
+    .line.response { color: var(--fg); padding-left: 1rem; }
+    .line.dim { color: var(--dim); padding-left: 1rem; }
+    .line.accent { color: var(--accent); font-weight: 700; padding-left: 1rem; }
+    .line.link { padding-left: 1rem; }
+    .line.link a { color: var(--link); text-decoration: none; }
+    .line.link a:hover { text-decoration: underline; }
+    .line.blank { height: 0.7rem; }
+    .line.error { color: #e06c75; padding-left: 1rem; }
+
+    .input-row { display: flex; align-items: center; }
+    .prompt-sign { color: var(--accent); margin-right: 0.5rem; flex-shrink: 0; }
+    #cmd-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--fg);
+      font-family: inherit;
+      font-size: inherit;
+      flex: 1;
+      caret-color: var(--cursor);
+    }
+  </style>
+</head>
+<body>
+<div id="terminal">
+
+  <div class="header">
+    <div class="name">jasky singh</div>
+    <div class="tagline">cs @ queens college &nbsp;·&nbsp; post-quantum cryptography &nbsp;·&nbsp; builder</div>
+  </div>
+
+  <div class="bio">
+    <p>Computer science student based in New York. I research post-quantum cryptography, build iOS apps, and spend too much time on Crypto Twitter.</p>
+    <p>Currently finishing my BS at Queens College CUNY, president of the Crypto Research Club, and working on MQOM — a post-quantum signature scheme — with Professor Delaram Kahrobaei.</p>
+    <p>I like film photography, biking, and cars. Sometimes I ship things.</p>
+  </div>
+
+  <div class="hint">
+    type a command or click one &rarr;
+    <span onclick="runCmd('cd projects')">cd projects</span>
+    <span onclick="runCmd('cd education')">cd education</span>
+    <span onclick="runCmd('cd interests')">cd interests</span>
+    <span onclick="runCmd('customize')">customize</span>
+    <span onclick="runCmd('help')">help</span>
+  </div>
+
+  <div id="output"></div>
+
+  <div class="input-row">
+    <span class="prompt-sign">$</span>
+    <input id="cmd-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus placeholder="type a command..." />
+  </div>
+
+</div>
+<script>
+  const input = document.getElementById('cmd-input');
+  const output = document.getElementById('output');
+  const hist = [];
+  let histIdx = -1;
+  let awaitingTheme = false;
+
+  const THEMES = { '1':'default','2':'light','3':'dracula','4':'highcontrast','5':'nord','6':'solarized' };
+
+  const COMMANDS = {
+    'cd projects': () => [
+      ['blank'],['accent','[ projects ]'],['blank'],
+      ['response','01  diabetes-predictor'],
+      ['dim','    Random Forest ML app for health risk prediction · Java'],
+      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['blank'],
+      ['response','02  woobsta'],
+      ['dim','    Shuffle gallery of 500+ screenshots · Cloudflare R2 + Vercel'],
+      ['link','    <a href="https://woobsta.com" target="_blank">woobsta.com</a>'],
+      ['blank'],
+      ['response','03  fitcheck'],
+      ['dim','    iOS outfit-scoring app · Apple FoundationModels + Vision API · on-device AI'],
+      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['blank'],
+      ['response','04  sql-etl-pipeline'],
+      ['dim','    Normalized relational database with full ETL pipeline'],
+      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['blank'],
+      ['response','05  mqom-research'],
+      ['dim','    Post-quantum signature scheme · LaTeX manuscript + implementation'],
+      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['blank'],
+    ],
+    'cd education': () => [
+      ['blank'],['accent','[ education ]'],['blank'],
+      ['response','Queens College, CUNY'],
+      ['dim','B.S. Computer Science — graduating May 2026'],
+      ['blank'],
+      ['response','relevant coursework'],
+      ['dim','Computability & Complexity · Internet Web Technologies'],
+      ['dim','Data Structures · Algorithms · Linear Algebra · Discrete Math'],
+      ['blank'],
+      ['response','research'],
+      ['dim','Post-Quantum Cryptography with Prof. Delaram Kahrobaei'],
+      ['dim','Focus: MQOM v2 signature scheme (Fiat-Shamir, GGM seed trees, ZKP)'],
+      ['blank'],
+      ['response','leadership'],
+      ['dim','President, Crypto Research Club @ Queens College'],
+      ['blank'],
+    ],
+    'cd interests': () => [
+      ['blank'],['accent','[ interests ]'],['blank'],
+      ['response','film photography'],
+      ['dim','rangefinders, point-and-shoots, japanese used market'],
+      ['blank'],
+      ['response','crypto / defi'],
+      ['dim','onchain since forever. following the meta so you don\'t have to.'],
+      ['blank'],
+      ['response','automotive'],
+      ['dim','cars. the good ones.'],
+      ['blank'],
+      ['response','music production  ·  video editing  ·  biking  ·  anime'],
+      ['blank'],
+    ],
+    'customize': () => {
+      awaitingTheme = true;
+      return [
+        ['blank'],['accent','[ customize ]  pick a theme:'],['blank'],
+        ['response','1  default        white on black'],
+        ['response','2  light          black on white'],
+        ['response','3  dracula        purple / pink'],
+        ['response','4  high contrast  yellow on black'],
+        ['response','5  nord           arctic blue'],
+        ['response','6  solarized      warm amber'],
+        ['blank'],['dim','type a number to apply'],['blank'],
+      ];
+    },
+    'help': () => [
+      ['blank'],['accent','[ available commands ]'],['blank'],
+      ['response','cd projects    — view projects'],
+      ['response','cd education   — view education & research'],
+      ['response','cd interests   — view interests'],
+      ['response','customize      — change terminal theme'],
+      ['response','clear          — clear terminal'],
+      ['response','help           — show this menu'],
+      ['blank'],
+    ],
+    'clear': () => { output.innerHTML = ''; return []; },
+    'whoami': () => [['response','jasky singh — cs student, researcher, builder.'],['blank']],
+  };
+
+  function applyTheme(name) {
+    document.body.className = name === 'default' ? '' : 'theme-' + name;
+    localStorage.setItem('jasky-theme', name);
+    return [['dim','theme applied: ' + name],['blank']];
+  }
+
+  function print(lines) {
+    lines.forEach(([type, text]) => {
+      const div = document.createElement('div');
+      div.className = 'line ' + type;
+      if (text) div.innerHTML = text;
+      output.appendChild(div);
+    });
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  function runCmd(raw) {
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+    hist.unshift(raw); histIdx = -1;
+
+    const cmdDiv = document.createElement('div');
+    cmdDiv.className = 'line cmd';
+    cmdDiv.textContent = raw;
+    output.appendChild(cmdDiv);
+
+    if (awaitingTheme) {
+      awaitingTheme = false;
+      if (THEMES[cmd]) {
+        print(applyTheme(THEMES[cmd]));
+      } else {
+        print([['error','invalid selection. type customize to try again.'],['blank']]);
+      }
+      input.value = ''; return;
+    }
+
+    if (COMMANDS[cmd]) {
+      print(COMMANDS[cmd]());
+    } else {
+      print([
+        ['error','command not found: ' + cmd],
+        ['dim','type help for available commands'],
+        ['blank'],
+      ]);
+    }
+    input.value = '';
+  }
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { runCmd(input.value); }
+    else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (histIdx < hist.length - 1) histIdx++;
+      input.value = hist[histIdx] || '';
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (histIdx > 0) histIdx--; else { histIdx = -1; input.value = ''; return; }
+      input.value = hist[histIdx] || '';
+    }
+  });
+
+  const saved = localStorage.getItem('jasky-theme');
+  if (saved && saved !== 'default') document.body.className = 'theme-' + saved;
+
+  document.addEventListener('click', e => {
+    if (e.target.tagName !== 'A') input.focus();
+  });
+</script>
+</body>
+</html>
