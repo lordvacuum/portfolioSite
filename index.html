@@ -119,6 +119,7 @@
     type a command or click one &rarr;
     <span onclick="runCmd('cd projects')">cd projects</span>
     <span onclick="runCmd('cd education')">cd education</span>
+    <span onclick="runCmd('cd experience')">cd experience</span>
     <span onclick="runCmd('cd interests')">cd interests</span>
     <span onclick="runCmd('customize')">customize</span>
     <span onclick="runCmd('help')">help</span>
@@ -179,22 +180,6 @@
       ['dim',      '    Random Forest ML app for health risk prediction · Java'],
       ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
-      ['response', 'woobsta'],
-      ['dim',      '    Shuffle gallery of 500+ screenshots · Cloudflare R2 + Vercel'],
-      ['link',     '    <a href="https://woobsta.com" target="_blank">woobsta.com</a>'],
-      ['blank'],
-      ['response', 'fitcheck'],
-      ['dim',      '    iOS outfit-scoring app · Apple FoundationModels + Vision API · on-device AI'],
-      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
-      ['blank'],
-      ['response', 'sql-etl-pipeline'],
-      ['dim',      '    Normalized relational database with full ETL pipeline'],
-      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
-      ['blank'],
-      ['response', 'mqom-research'],
-      ['dim',      '    Post-quantum signature scheme · LaTeX manuscript + implementation'],
-      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
-      ['blank'],
       ['response', 'biclass-db'],
       ['dim',      '    Recreated a star schema data warehouse from flat-file source data · T-SQL'],
       ['dim',      '    ETL pipelines, stored procedures, workflow tracking, normalized schema with user auth auditing'],
@@ -213,15 +198,36 @@
       ['dim',      'Minors: Mathematics · Data Analytics'],
       ['blank'],
       ['response', 'relevant coursework'],
-      ['dim',      'Computability & Complexity · Internet Web Technologies'],
-      ['dim',      'Data Structures · Algorithms · Linear Algebra · Discrete Math'],
+      ['dim',      'Data Structures & Algorithms · Theory of Computation · Database Systems'],
+      ['dim',      'Post-Quantum Cryptography · Blockchain · Operating Systems · Software Engineering'],
       ['blank'],
       ['response', 'research'],
-      ['dim',      'Post-Quantum Cryptography with Prof. Delaram Kahrobaei'],
-      ['dim',      'Focus: MQOM v2 signature scheme (Fiat-Shamir, GGM seed trees, ZKP)'],
+      ['dim',      'Entry-level research into post-quantum cryptographic algorithms'],
       ['blank'],
       ['response', 'leadership'],
       ['dim',      'President, Crypto Research Club @ Queens College'],
+      ['dim',      'Workshops, guest speakers, fintech panels, onchain analysis sessions'],
+      ['blank'],
+      ['response', 'Aviation Career & Technical High School'],
+      ['dim',      'Long Island City, NY · June 2019'],
+      ['dim',      'Hands-on training in engine repair and aviation maintenance'],
+      ['blank'],
+    ],
+    'cd experience': () => [
+      ['blank'], ['accent', '[ experience ]'], ['blank'],
+      ['response', 'social media manager — deBridge'],
+      ['dim',      'Remote · Apr 2024 – May 2024'],
+      ['dim',      'Ran content for a DeFi protocol on Crypto Twitter. Tracked onchain sentiment,'],
+      ['dim',      'surfaced insights to the marketing team, grew community engagement.'],
+      ['blank'],
+      ['response', 'line cook — 5 Steak'],
+      ['dim',      'Queens, NY · Dec 2023 – Sep 2025'],
+      ['dim',      'Managed a kitchen station, prepped daily, handled deliveries, kept things running.'],
+      ['dim',      'Showed up, did the work, helped wherever needed.'],
+      ['blank'],
+      ['response', 'taxi driver — NYC TLC'],
+      ['dim',      'Manhattan, NY · Jun 2025 – Aug 2025'],
+      ['dim',      'Licensed NYC yellow cab. Learned the city better than most people ever will.'],
       ['blank'],
     ],
     'cd interests': () => [
@@ -266,11 +272,12 @@
       ['blank'], ['accent', '[ available commands ]'], ['blank'],
       ['response', 'cd projects        — view projects'],
       ['response', 'cd education       — view education & research'],
+      ['response', 'cd experience      — view experience'],
       ['response', 'cd interests       — view interests'],
       ['response', 'whoami             — about me'],
       ['response', 'ls                 — list commands'],
       ['response', 'customize          — show theme menu'],
-      ['response', 'customize <name>   — apply theme directly'],
+      ['response', 'customize <n>      — apply theme directly'],
       ['response', 'clear              — clear terminal'],
       ['response', 'help               — show this menu'],
       ['blank'],
@@ -280,7 +287,7 @@
     ],
     'ls': () => [
       ['blank'],
-      ['response', 'cd projects   cd education   cd interests   whoami   customize   help   clear'],
+      ['response', 'cd projects   cd education   cd experience   cd interests   whoami   customize   help   clear'],
       ['blank'],
     ],
     'clear': () => { output.innerHTML = ''; return []; },
@@ -295,18 +302,14 @@
 
   // ── completable list ───────────────────────────────────────────────────────
   const TOP_CMDS = [
-    'cd projects', 'cd education', 'cd interests',
+    'cd projects', 'cd education', 'cd interests', 'cd experience',
     'customize', 'help', 'ls', 'clear', 'whoami',
   ];
 
-  // sub-completions for "cd " prefix
-  const CD_TARGETS = ['projects', 'education', 'interests'];
+  const CD_TARGETS = ['projects', 'education', 'interests', 'experience'];
 
   // project names completable via "cd projects/<name>" or as easter egg "open <name>"
-  const PROJECT_NAMES = [
-    'diabetes-predictor', 'woobsta', 'fitcheck',
-    'sql-etl-pipeline', 'mqom-research', 'biclass-db', 'sha256-c',
-  ];
+  const PROJECT_NAMES = ['diabetes-predictor', 'biclass-db', 'sha256-c'];
 
   // interest/education sub-tokens (just for completeness, completable after their parent cmd)
   const INTEREST_TOKENS = ['film-photography', 'crypto', 'defi', 'automotive', 'music-production', 'biking', 'anime'];
