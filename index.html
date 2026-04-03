@@ -85,6 +85,7 @@
     .line.blank { height: 0.7rem; }
     .line.error { color: #e06c75; padding-left: 1rem; }
     .line.suggestion { color: var(--dim); padding-left: 1rem; font-size: 12px; }
+    .line.tab-hint { color: var(--dim); padding-left: 1rem; font-size: 12px; letter-spacing: 0.03em; }
 
     .input-row { display: flex; align-items: center; }
     .prompt-sign { color: var(--accent); margin-right: 0.5rem; flex-shrink: 0; }
@@ -132,245 +133,294 @@
 
 </div>
 <script>
-  const input = document.getElementById('cmd-input');
-  const output = document.getElementById('output');
+  const inputEl = document.getElementById('cmd-input');
+  const output  = document.getElementById('output');
+
+  // ── history ───────────────────────────────────────────────────────────────
   const hist = [];
   let histIdx = -1;
-  let awaitingTheme = false;
-  let tabMatches = [];
-  let tabIdx = 0;
 
-  const THEMES = {
-    '1': 'default',
-    '2': 'light',
-    '3': 'dracula',
-    '4': 'highcontrast',
-    '5': 'nord',
-    '6': 'solarized'
+  // ── tab state ─────────────────────────────────────────────────────────────
+  let tabCandidates = [];
+  let tabCycleIdx   = -1;
+  let tabBase       = '';
+
+  // ── themes ────────────────────────────────────────────────────────────────
+  const THEME_MAP = {
+    default: 'default', light: 'light', dracula: 'dracula',
+    highcontrast: 'highcontrast', nord: 'nord', solarized: 'solarized'
   };
-
-  const THEME_NAMES = {
-    'default': 'default',
-    'light': 'light',
-    'dracula': 'dracula',
-    'highcontrast': 'highcontrast',
-    'nord': 'nord',
-    'solarized': 'solarized'
+  const THEME_ALIASES = {
+    drac: 'dracula', dr: 'dracula',
+    hc: 'highcontrast', hi: 'highcontrast', high: 'highcontrast',
+    sol: 'solarized', solar: 'solarized',
+    dk: 'default', dark: 'default', def: 'default',
+    lt: 'light', wh: 'light', white: 'light',
+    n: 'nord',
   };
+  const THEME_NAMES = Object.keys(THEME_MAP);
 
-  const ALL_CMDS = ['cd projects','cd education','cd interests','customize','help','clear','whoami'];
+  function resolveTheme(raw) {
+    const k = raw.toLowerCase().trim();
+    return THEME_MAP[k] || THEME_ALIASES[k] || null;
+  }
 
   function applyTheme(name) {
     document.body.className = name === 'default' ? '' : 'theme-' + name;
     localStorage.setItem('jasky-theme', name);
-    return [['dim','theme applied: ' + name],['blank']];
+    return [['dim', 'theme applied: ' + name], ['blank']];
   }
 
+  // ── command table ─────────────────────────────────────────────────────────
   const COMMANDS = {
     'cd projects': () => [
-      ['blank'],['accent','[ projects ]'],['blank'],
-      ['response','01  diabetes-predictor'],
-      ['dim','    Random Forest ML app for health risk prediction · Java'],
-      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['blank'], ['accent', '[ projects ]'], ['blank'],
+      ['response', '01  diabetes-predictor'],
+      ['dim',      '    Random Forest ML app for health risk prediction · Java'],
+      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
-      ['response','02  woobsta'],
-      ['dim','    Shuffle gallery of 500+ screenshots · Cloudflare R2 + Vercel'],
-      ['link','    <a href="https://woobsta.com" target="_blank">woobsta.com</a>'],
+      ['response', '02  woobsta'],
+      ['dim',      '    Shuffle gallery of 500+ screenshots · Cloudflare R2 + Vercel'],
+      ['link',     '    <a href="https://woobsta.com" target="_blank">woobsta.com</a>'],
       ['blank'],
-      ['response','03  fitcheck'],
-      ['dim','    iOS outfit-scoring app · Apple FoundationModels + Vision API · on-device AI'],
-      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['response', '03  fitcheck'],
+      ['dim',      '    iOS outfit-scoring app · Apple FoundationModels + Vision API · on-device AI'],
+      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
-      ['response','04  sql-etl-pipeline'],
-      ['dim','    Normalized relational database with full ETL pipeline'],
-      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['response', '04  sql-etl-pipeline'],
+      ['dim',      '    Normalized relational database with full ETL pipeline'],
+      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
-      ['response','05  mqom-research'],
-      ['dim','    Post-quantum signature scheme · LaTeX manuscript + implementation'],
-      ['link','    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['response', '05  mqom-research'],
+      ['dim',      '    Post-quantum signature scheme · LaTeX manuscript + implementation'],
+      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
     ],
     'cd education': () => [
-      ['blank'],['accent','[ education ]'],['blank'],
-      ['response','Queens College, CUNY'],
-      ['dim','B.S. Computer Science — graduating May 2026'],
+      ['blank'], ['accent', '[ education ]'], ['blank'],
+      ['response', 'Queens College, CUNY'],
+      ['dim',      'B.S. Computer Science — graduating May 2026'],
       ['blank'],
-      ['response','relevant coursework'],
-      ['dim','Computability & Complexity · Internet Web Technologies'],
-      ['dim','Data Structures · Algorithms · Linear Algebra · Discrete Math'],
+      ['response', 'relevant coursework'],
+      ['dim',      'Computability & Complexity · Internet Web Technologies'],
+      ['dim',      'Data Structures · Algorithms · Linear Algebra · Discrete Math'],
       ['blank'],
-      ['response','research'],
-      ['dim','Post-Quantum Cryptography with Prof. Delaram Kahrobaei'],
-      ['dim','Focus: MQOM v2 signature scheme (Fiat-Shamir, GGM seed trees, ZKP)'],
+      ['response', 'research'],
+      ['dim',      'Post-Quantum Cryptography with Prof. Delaram Kahrobaei'],
+      ['dim',      'Focus: MQOM v2 signature scheme (Fiat-Shamir, GGM seed trees, ZKP)'],
       ['blank'],
-      ['response','leadership'],
-      ['dim','President, Crypto Research Club @ Queens College'],
+      ['response', 'leadership'],
+      ['dim',      'President, Crypto Research Club @ Queens College'],
       ['blank'],
     ],
     'cd interests': () => [
-      ['blank'],['accent','[ interests ]'],['blank'],
-      ['response','film photography'],
-      ['dim','rangefinders, point-and-shoots, japanese used market'],
+      ['blank'], ['accent', '[ interests ]'], ['blank'],
+      ['response', 'film photography'],
+      ['dim',      'rangefinders, point-and-shoots, japanese used market'],
       ['blank'],
-      ['response','crypto / defi'],
-      ['dim','onchain since forever. following the meta so you don\'t have to.'],
+      ['response', 'crypto / defi'],
+      ['dim',      "onchain since forever. following the meta so you don't have to."],
       ['blank'],
-      ['response','automotive'],
-      ['dim','cars. the good ones.'],
+      ['response', 'automotive'],
+      ['dim',      'cars. the good ones.'],
       ['blank'],
-      ['response','music production  ·  video editing  ·  biking  ·  anime'],
+      ['response', 'music production  ·  video editing  ·  biking  ·  anime'],
       ['blank'],
     ],
-    'customize': (flag) => {
-      // if flag provided, apply directly
-      if (flag) {
-        const byNum = THEMES[flag];
-        const byName = THEME_NAMES[flag];
-        const themeName = byNum || byName;
-        if (themeName) return applyTheme(themeName);
+    'customize': (args) => {
+      if (args) {
+        const name = resolveTheme(args);
+        if (name) return applyTheme(name);
         return [
-          ['error', 'unknown theme: ' + flag],
-          ['dim', 'usage: customize [1-6] or customize [name]'],
+          ['error', 'unknown theme: ' + args],
+          ['dim',   'available: ' + THEME_NAMES.join('  ')],
           ['blank'],
         ];
       }
-      // no flag — show menu
-      awaitingTheme = true;
       return [
-        ['blank'],['accent','[ customize ]  pick a theme:'],['blank'],
-        ['response','1  default        white on black'],
-        ['response','2  light          black on white'],
-        ['response','3  dracula        purple / pink'],
-        ['response','4  high contrast  yellow on black'],
-        ['response','5  nord           arctic blue'],
-        ['response','6  solarized      warm amber'],
-        ['blank'],['dim','type a number or name to apply — or use customize [1-6] directly'],['blank'],
+        ['blank'], ['accent', '[ customize ]  pick a theme:'], ['blank'],
+        ['response', 'default        white on black'],
+        ['response', 'light          black on white'],
+        ['response', 'dracula        purple / pink'],
+        ['response', 'highcontrast   yellow on black'],
+        ['response', 'nord           arctic blue'],
+        ['response', 'solarized      warm amber'],
+        ['blank'],
+        ['dim', 'type: customize <name>   e.g. customize dracula'],
+        ['dim', 'tip:  tab-complete theme names after "customize "'],
+        ['blank'],
       ];
     },
     'help': () => [
-      ['blank'],['accent','[ available commands ]'],['blank'],
-      ['response','cd projects        — view projects'],
-      ['response','cd education       — view education & research'],
-      ['response','cd interests       — view interests'],
-      ['response','customize          — change terminal theme (interactive)'],
-      ['response','customize [1-6]    — apply theme directly'],
-      ['response','customize [name]   — e.g. customize dracula'],
-      ['response','clear              — clear terminal'],
-      ['response','help               — show this menu'],
-      ['blank'],['dim','tip: press Tab to autocomplete, ↑↓ for history'],['blank'],
+      ['blank'], ['accent', '[ available commands ]'], ['blank'],
+      ['response', 'cd projects        — view projects'],
+      ['response', 'cd education       — view education & research'],
+      ['response', 'cd interests       — view interests'],
+      ['response', 'whoami             — about me'],
+      ['response', 'ls                 — list commands'],
+      ['response', 'customize          — show theme menu'],
+      ['response', 'customize <name>   — apply theme directly'],
+      ['response', 'clear              — clear terminal'],
+      ['response', 'help               — show this menu'],
+      ['blank'],
+      ['dim', 'tip: press Tab to autocomplete commands & theme names'],
+      ['dim', 'tip: ↑ ↓ arrows navigate command history'],
+      ['blank'],
+    ],
+    'ls': () => [
+      ['blank'],
+      ['response', 'cd projects   cd education   cd interests   whoami   customize   help   clear'],
+      ['blank'],
     ],
     'clear': () => { output.innerHTML = ''; return []; },
-    'whoami': () => [['response','jasky singh — cs student, researcher, builder.'],['blank']],
+    'whoami': () => [
+      ['blank'],
+      ['response', 'jasky singh — cs student, researcher, builder.'],
+      ['dim',      'new york city. queens college cuny. graduating may 2026.'],
+      ['dim',      'post-quantum crypto (mqom) · ios dev · crypto/defi · film photography'],
+      ['blank'],
+    ],
   };
 
-  function print(lines) {
-    lines.forEach(([type, text]) => {
-      const div = document.createElement('div');
-      div.className = 'line ' + type;
-      if (text) div.innerHTML = text;
-      output.appendChild(div);
-    });
-    window.scrollTo(0, document.body.scrollHeight);
-  }
+  // ── completable list ───────────────────────────────────────────────────────
+  const TOP_CMDS = ['cd projects', 'cd education', 'cd interests', 'customize', 'help', 'ls', 'clear', 'whoami'];
 
-  function runCmd(raw) {
+  // ── parser & dispatcher ───────────────────────────────────────────────────
+  function dispatch(raw) {
     const trimmed = raw.trim();
     if (!trimmed) return;
-    const lower = trimmed.toLowerCase();
-    hist.unshift(trimmed); histIdx = -1;
-    tabMatches = []; tabIdx = 0;
+
+    const lower    = trimmed.toLowerCase();
+    const spaceIdx = lower.indexOf(' ');
+    const base     = spaceIdx === -1 ? lower : lower.slice(0, spaceIdx);
+    const rest     = spaceIdx === -1 ? null   : lower.slice(spaceIdx + 1).trim() || null;
+
+    let key, args;
+    if (base === 'cd') {
+      key  = rest ? 'cd ' + rest : 'cd';
+      args = null;
+    } else {
+      key  = base;
+      args = rest;
+    }
 
     const cmdDiv = document.createElement('div');
     cmdDiv.className = 'line cmd';
     cmdDiv.textContent = trimmed;
     output.appendChild(cmdDiv);
 
-    // handle awaiting theme from interactive menu
-    if (awaitingTheme) {
-      awaitingTheme = false;
-      const byNum = THEMES[lower];
-      const byName = THEME_NAMES[lower];
-      const themeName = byNum || byName;
-      if (themeName) {
-        print(applyTheme(themeName));
-      } else {
-        print([['error','invalid selection. type customize to try again.'],['blank']]);
-      }
-      input.value = ''; return;
-    }
-
-    // parse base command + optional flag
-    // e.g. "customize 3" → base="customize", flag="3"
-    // e.g. "customize dracula" → base="customize", flag="dracula"
-    const parts = lower.split(/\s+/);
-    const base = parts[0];
-    const flag = parts.slice(1).join(' ') || null;
-
-    // check multi-word commands first (cd projects etc)
-    if (COMMANDS[lower]) {
-      print(COMMANDS[lower](flag));
-    } else if (base === 'customize' && COMMANDS['customize']) {
-      print(COMMANDS['customize'](flag));
+    if (COMMANDS[key]) {
+      print(COMMANDS[key](args));
     } else {
       print([
-        ['error','command not found: ' + lower],
-        ['dim','type help for available commands'],
+        ['error', 'command not found: ' + lower],
+        ['dim',   'type help for available commands'],
         ['blank'],
       ]);
     }
-    input.value = '';
+  }
+
+  // ── tab completion ─────────────────────────────────────────────────────────
+  function getCompletionPool(val) {
+    if (val.startsWith('customize ')) {
+      const prefix  = val.slice('customize '.length);
+      const matches = THEME_NAMES.filter(t => t.startsWith(prefix));
+      return matches.map(t => 'customize ' + t);
+    }
+    return TOP_CMDS.filter(c => c.startsWith(val));
   }
 
   function handleTab(e) {
     e.preventDefault();
-    const val = input.value.toLowerCase();
+    const val = inputEl.value.toLowerCase();
     if (!val) return;
 
-    if (tabMatches.length > 1 && input.value === tabMatches[tabIdx]) {
-      tabIdx = (tabIdx + 1) % tabMatches.length;
-      input.value = tabMatches[tabIdx];
+    if (tabCycleIdx !== -1 && inputEl.value.toLowerCase() === tabCandidates[tabCycleIdx]) {
+      tabCycleIdx = (tabCycleIdx + 1) % tabCandidates.length;
+      inputEl.value = tabCandidates[tabCycleIdx];
       return;
     }
 
-    tabMatches = ALL_CMDS.filter(c => c.startsWith(val));
-    tabIdx = 0;
-    if (tabMatches.length === 0) return;
+    tabBase       = val;
+    tabCandidates = getCompletionPool(val);
+    tabCycleIdx   = -1;
 
-    if (tabMatches.length === 1) {
-      input.value = tabMatches[0];
+    if (tabCandidates.length === 0) return;
+
+    if (tabCandidates.length === 1) {
+      inputEl.value = tabCandidates[0];
+      tabCycleIdx   = 0;
     } else {
-      input.value = tabMatches[tabIdx];
-      const suggDiv = document.createElement('div');
-      suggDiv.className = 'line suggestion';
-      suggDiv.textContent = tabMatches.join('   ');
-      output.appendChild(suggDiv);
+      tabCycleIdx   = 0;
+      inputEl.value = tabCandidates[0];
+
+      const displayList = val.startsWith('customize ')
+        ? tabCandidates.map(c => c.replace('customize ', ''))
+        : tabCandidates;
+
+      const hint = document.createElement('div');
+      hint.className = 'line tab-hint';
+      hint.textContent = displayList.join('   ');
+      output.appendChild(hint);
       window.scrollTo(0, document.body.scrollHeight);
     }
   }
 
-  input.addEventListener('keydown', e => {
+  // ── print helper ───────────────────────────────────────────────────────────
+  function print(lines) {
+    lines.forEach(([type, text]) => {
+      const div = document.createElement('div');
+      div.className = 'line ' + type;
+      if (text !== undefined) div.innerHTML = text;
+      output.appendChild(div);
+    });
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  // ── public wrapper (onclick buttons) ──────────────────────────────────────
+  function runCmd(raw) {
+    hist.unshift(raw.trim());
+    histIdx       = -1;
+    tabCandidates = [];
+    tabCycleIdx   = -1;
+    dispatch(raw);
+    inputEl.value = '';
+  }
+
+  // ── keyboard handler ───────────────────────────────────────────────────────
+  inputEl.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       handleTab(e);
     } else if (e.key === 'Enter') {
-      runCmd(input.value);
+      const val = inputEl.value;
+      hist.unshift(val.trim());
+      histIdx       = -1;
+      tabCandidates = [];
+      tabCycleIdx   = -1;
+      dispatch(val);
+      inputEl.value = '';
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (histIdx < hist.length - 1) histIdx++;
-      input.value = hist[histIdx] || '';
+      inputEl.value = hist[histIdx] || '';
+      tabCandidates = []; tabCycleIdx = -1;
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (histIdx > 0) histIdx--; else { histIdx = -1; input.value = ''; return; }
-      input.value = hist[histIdx] || '';
+      if (histIdx > 0) { histIdx--; inputEl.value = hist[histIdx] || ''; }
+      else { histIdx = -1; inputEl.value = ''; }
+      tabCandidates = []; tabCycleIdx = -1;
     } else {
-      tabMatches = []; tabIdx = 0;
+      tabCandidates = []; tabCycleIdx = -1;
     }
   });
 
+  // ── restore theme ──────────────────────────────────────────────────────────
   const saved = localStorage.getItem('jasky-theme');
   if (saved && saved !== 'default') document.body.className = 'theme-' + saved;
 
+  // ── keep focus ─────────────────────────────────────────────────────────────
   document.addEventListener('click', e => {
-    if (e.target.tagName !== 'A') input.focus();
+    if (e.target.tagName !== 'A') inputEl.focus();
   });
 </script>
 </body>
