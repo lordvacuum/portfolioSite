@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎃</text></svg>">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>jasky — portfolio</title>
@@ -8,14 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d0d0d;
-      --fg: #f0f0f0;
-      --dim: #555;
-      --accent: #f0f0f0;
-      --prompt: #888;
-      --link: #7eb8f7;
-      --selection: #333;
-      --cursor: #f0f0f0;
+      --bg: #0d0d0d; --fg: #f0f0f0; --dim: #555; --accent: #f0f0f0;
+      --prompt: #888; --link: #7eb8f7; --selection: #333; --cursor: #f0f0f0;
     }
     .theme-light {
       --bg: #fafafa; --fg: #111; --dim: #888; --accent: #111;
@@ -90,6 +85,7 @@
     .line.link a:hover { text-decoration: underline; }
     .line.blank { height: 0.7rem; }
     .line.error { color: #e06c75; padding-left: 1rem; }
+    .line.suggestion { color: var(--dim); padding-left: 1rem; font-size: 12px; }
 
     .input-row { display: flex; align-items: center; }
     .prompt-sign { color: var(--accent); margin-right: 0.5rem; flex-shrink: 0; }
@@ -142,8 +138,12 @@
   const hist = [];
   let histIdx = -1;
   let awaitingTheme = false;
+  let tabMatches = [];
+  let tabIdx = 0;
 
   const THEMES = { '1':'default','2':'light','3':'dracula','4':'highcontrast','5':'nord','6':'solarized' };
+
+  const ALL_CMDS = ['cd projects','cd education','cd interests','customize','help','clear','whoami'];
 
   const COMMANDS = {
     'cd projects': () => [
@@ -221,7 +221,7 @@
       ['response','customize      — change terminal theme'],
       ['response','clear          — clear terminal'],
       ['response','help           — show this menu'],
-      ['blank'],
+      ['blank'],['dim','tip: press Tab to autocomplete'],['blank'],
     ],
     'clear': () => { output.innerHTML = ''; return []; },
     'whoami': () => [['response','jasky singh — cs student, researcher, builder.'],['blank']],
@@ -247,6 +247,7 @@
     const cmd = raw.trim().toLowerCase();
     if (!cmd) return;
     hist.unshift(raw); histIdx = -1;
+    tabMatches = []; tabIdx = 0;
 
     const cmdDiv = document.createElement('div');
     cmdDiv.className = 'line cmd';
@@ -275,9 +276,43 @@
     input.value = '';
   }
 
+  function handleTab(e) {
+    e.preventDefault();
+    const val = input.value.toLowerCase();
+    if (!val) return;
+
+    // if we already have matches cycling, go to next
+    if (tabMatches.length > 1 && input.value === tabMatches[tabIdx]) {
+      tabIdx = (tabIdx + 1) % tabMatches.length;
+      input.value = tabMatches[tabIdx];
+      return;
+    }
+
+    // find new matches
+    tabMatches = ALL_CMDS.filter(c => c.startsWith(val));
+    tabIdx = 0;
+
+    if (tabMatches.length === 0) return;
+
+    if (tabMatches.length === 1) {
+      input.value = tabMatches[0];
+    } else {
+      // show options and fill common prefix
+      input.value = tabMatches[tabIdx];
+      const suggDiv = document.createElement('div');
+      suggDiv.className = 'line suggestion';
+      suggDiv.textContent = tabMatches.join('   ');
+      output.appendChild(suggDiv);
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+  }
+
   input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { runCmd(input.value); }
-    else if (e.key === 'ArrowUp') {
+    if (e.key === 'Tab') {
+      handleTab(e);
+    } else if (e.key === 'Enter') {
+      runCmd(input.value);
+    } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       if (histIdx < hist.length - 1) histIdx++;
       input.value = hist[histIdx] || '';
@@ -285,6 +320,9 @@
       e.preventDefault();
       if (histIdx > 0) histIdx--; else { histIdx = -1; input.value = ''; return; }
       input.value = hist[histIdx] || '';
+    } else {
+      // reset tab cycle on any other key
+      tabMatches = []; tabIdx = 0;
     }
   });
 
