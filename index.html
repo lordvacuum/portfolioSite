@@ -110,7 +110,7 @@
   </div>
 
   <div class="bio">
-    <p>Computer science student based in New York, minoring in math and data analytics. I'm interested in how software intersects with finance.I follow crypto and DeFi closely, build things on the side, and spend too much time on Crypto Twitter.</p>
+    <p>Computer science student based in New York, minoring in math and data analytics. I'm interested in how software intersects with finance — I follow crypto and DeFi closely, build things on the side, and spend too much time on Crypto Twitter.</p>
     <p>Currently finishing my BS at Queens College CUNY, president of the Crypto Research Club, doing some entry-level research into post-quantum cryptographic algorithms, and exploring the fintech and blockchain space.</p>
     <p>I like film photography, biking, and cars. Sometimes I ship things.</p>
   </div>
@@ -175,24 +175,34 @@
   const COMMANDS = {
     'cd projects': () => [
       ['blank'], ['accent', '[ projects ]'], ['blank'],
-      ['response', '01  diabetes-predictor'],
+      ['response', 'diabetes-predictor'],
       ['dim',      '    Random Forest ML app for health risk prediction · Java'],
       ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
-      ['response', '02  woobsta'],
+      ['response', 'woobsta'],
       ['dim',      '    Shuffle gallery of 500+ screenshots · Cloudflare R2 + Vercel'],
       ['link',     '    <a href="https://woobsta.com" target="_blank">woobsta.com</a>'],
       ['blank'],
-      ['response', '03  fitcheck'],
+      ['response', 'fitcheck'],
       ['dim',      '    iOS outfit-scoring app · Apple FoundationModels + Vision API · on-device AI'],
       ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
-      ['response', '04  sql-etl-pipeline'],
+      ['response', 'sql-etl-pipeline'],
       ['dim',      '    Normalized relational database with full ETL pipeline'],
       ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
-      ['response', '05  mqom-research'],
+      ['response', 'mqom-research'],
       ['dim',      '    Post-quantum signature scheme · LaTeX manuscript + implementation'],
+      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['blank'],
+      ['response', 'biclass-db'],
+      ['dim',      '    Recreated a star schema data warehouse from flat-file source data · T-SQL'],
+      ['dim',      '    ETL pipelines, stored procedures, workflow tracking, normalized schema with user auth auditing'],
+      ['link',     '    <a href="https://github.com/lordvacuum/CSCI331Group1" target="_blank">github.com/lordvacuum</a>'],
+      ['blank'],
+      ['response', 'sha256-c'],
+      ['dim',      '    SHA-256 implemented from scratch in C · full message schedule, compression function,'],
+      ['dim',      '    padding logic, and multi-block file hashing with correct big-endian byte handling'],
       ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
       ['blank'],
     ],
@@ -284,7 +294,23 @@
   };
 
   // ── completable list ───────────────────────────────────────────────────────
-  const TOP_CMDS = ['cd projects', 'cd education', 'cd interests', 'customize', 'help', 'ls', 'clear', 'whoami'];
+  const TOP_CMDS = [
+    'cd projects', 'cd education', 'cd interests',
+    'customize', 'help', 'ls', 'clear', 'whoami',
+  ];
+
+  // sub-completions for "cd " prefix
+  const CD_TARGETS = ['projects', 'education', 'interests'];
+
+  // project names completable via "cd projects/<name>" or as easter egg "open <name>"
+  const PROJECT_NAMES = [
+    'diabetes-predictor', 'woobsta', 'fitcheck',
+    'sql-etl-pipeline', 'mqom-research', 'biclass-db', 'sha256-c',
+  ];
+
+  // interest/education sub-tokens (just for completeness, completable after their parent cmd)
+  const INTEREST_TOKENS = ['film-photography', 'crypto', 'defi', 'automotive', 'music-production', 'biking', 'anime'];
+  const EDUCATION_TOKENS = ['coursework', 'research', 'leadership'];
 
   // ── parser & dispatcher ───────────────────────────────────────────────────
   function dispatch(raw) {
@@ -323,11 +349,22 @@
 
   // ── tab completion ─────────────────────────────────────────────────────────
   function getCompletionPool(val) {
+    // customize <theme>
     if (val.startsWith('customize ')) {
       const prefix  = val.slice('customize '.length);
-      const matches = THEME_NAMES.filter(t => t.startsWith(prefix));
-      return matches.map(t => 'customize ' + t);
+      return THEME_NAMES.filter(t => t.startsWith(prefix)).map(t => 'customize ' + t);
     }
+    // cd <target> — complete the target after "cd "
+    if (val.startsWith('cd ')) {
+      const prefix = val.slice('cd '.length);
+      return CD_TARGETS.filter(t => t.startsWith(prefix)).map(t => 'cd ' + t);
+    }
+    // open <project> — hidden easter-egg completions
+    if (val.startsWith('open ')) {
+      const prefix = val.slice('open '.length);
+      return PROJECT_NAMES.filter(p => p.startsWith(prefix)).map(p => 'open ' + p);
+    }
+    // top-level
     return TOP_CMDS.filter(c => c.startsWith(val));
   }
 
@@ -355,8 +392,10 @@
       tabCycleIdx   = 0;
       inputEl.value = tabCandidates[0];
 
-      const displayList = val.startsWith('customize ')
-        ? tabCandidates.map(c => c.replace('customize ', ''))
+      const SUB_PREFIXES = ['customize ', 'cd ', 'open '];
+      const activePrefix = SUB_PREFIXES.find(p => val.startsWith(p)) || '';
+      const displayList  = activePrefix
+        ? tabCandidates.map(c => c.slice(activePrefix.length))
         : tabCandidates;
 
       const hint = document.createElement('div');
