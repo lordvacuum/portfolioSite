@@ -8,27 +8,27 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0d0d0d; --fg: #f0f0f0; --dim: #555; --accent: #f0f0f0;
+      --bg: #0d0d0d; --fg: #f0f0f0; --dim: #999; --accent: #f0f0f0;
       --prompt: #888; --link: #7eb8f7; --selection: #333; --cursor: #f0f0f0;
     }
     .theme-light {
-      --bg: #fafafa; --fg: #111; --dim: #888; --accent: #111;
+      --bg: #fafafa; --fg: #111; --dim: #555; --accent: #111;
       --prompt: #555; --link: #1a5fb4; --selection: #ddd; --cursor: #111;
     }
     .theme-dracula {
-      --bg: #282a36; --fg: #f8f8f2; --dim: #6272a4; --accent: #bd93f9;
+      --bg: #282a36; --fg: #f8f8f2; --dim: #a0aec0; --accent: #bd93f9;
       --prompt: #ff79c6; --link: #8be9fd; --selection: #44475a; --cursor: #bd93f9;
     }
     .theme-highcontrast {
-      --bg: #000; --fg: #ffff00; --dim: #888800; --accent: #ffff00;
+      --bg: #000; --fg: #ffff00; --dim: #cccc00; --accent: #ffff00;
       --prompt: #00ff00; --link: #00ffff; --selection: #333300; --cursor: #ffff00;
     }
     .theme-nord {
-      --bg: #2e3440; --fg: #eceff4; --dim: #4c566a; --accent: #88c0d0;
+      --bg: #2e3440; --fg: #eceff4; --dim: #8899aa; --accent: #88c0d0;
       --prompt: #81a1c1; --link: #a3be8c; --selection: #3b4252; --cursor: #88c0d0;
     }
     .theme-solarized {
-      --bg: #002b36; --fg: #839496; --dim: #586e75; --accent: #b58900;
+      --bg: #002b36; --fg: #839496; --dim: #93a1a1; --accent: #b58900;
       --prompt: #2aa198; --link: #268bd2; --selection: #073642; --cursor: #b58900;
     }
 
@@ -73,8 +73,8 @@
 
     #output { margin-bottom: 1rem; }
 
-    .line { margin-bottom: 0.15rem; }
-    .line.cmd { color: var(--prompt); }
+    .line { margin-bottom: 0.25rem; }
+    .line.cmd { color: var(--prompt); margin-top: 0.5rem; }
     .line.cmd::before { content: '$ '; color: var(--accent); }
     .line.response { color: var(--fg); padding-left: 1rem; }
     .line.dim { color: var(--dim); padding-left: 1rem; }
@@ -82,7 +82,7 @@
     .line.link { padding-left: 1rem; }
     .line.link a { color: var(--link); text-decoration: none; }
     .line.link a:hover { text-decoration: underline; }
-    .line.blank { height: 0.7rem; }
+    .line.blank { height: 1rem; }
     .line.error { color: #e06c75; padding-left: 1rem; }
     .line.suggestion { color: var(--dim); padding-left: 1rem; font-size: 12px; }
     .line.tab-hint { color: var(--dim); padding-left: 1rem; font-size: 12px; letter-spacing: 0.03em; }
@@ -121,6 +121,7 @@
     <span onclick="runCmd('cd education')">cd education</span>
     <span onclick="runCmd('cd experience')">cd experience</span>
     <span onclick="runCmd('cd interests')">cd interests</span>
+    <span onclick="runCmd('cd contact')">contact</span>
     <span onclick="runCmd('customize')">customize</span>
     <span onclick="runCmd('help')">help</span>
   </div>
@@ -177,18 +178,20 @@
     'cd projects': () => [
       ['blank'], ['accent', '[ projects ]'], ['blank'],
       ['response', 'diabetes-predictor'],
-      ['dim',      '    Random Forest ML app for health risk prediction · Java'],
-      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['dim',      '    Random Forest classifier for diabetes risk prediction · Java'],
+      ['dim',      '    Preprocessing (imputation, normalization), Swing GUI, CSV upload, majority-vote predictions'],
+      ['dim',      '    Utilizes JUnit for model logic and data handling tests'],
+      ['link',     '    <a href="https://github.com/lordvacuum/DiabetesPrediction" target="_blank">github.com/lordvacuum/DiabetesPrediction</a>'],
       ['blank'],
       ['response', 'biclass-db'],
       ['dim',      '    Recreated a star schema data warehouse from flat-file source data · T-SQL'],
       ['dim',      '    ETL pipelines, stored procedures, workflow tracking, normalized schema with user auth auditing'],
-      ['link',     '    <a href="https://github.com/lordvacuum/CSCI331Group1" target="_blank">github.com/lordvacuum</a>'],
+      ['link',     '    <a href="https://github.com/lordvacuum/CSCI331Group1/tree/main/Project%202%20-%20Recreate%20the%20Biclass%20DB" target="_blank">github.com/lordvacuum/CSCI331Group1</a>'],
       ['blank'],
       ['response', 'sha256-c'],
-      ['dim',      '    SHA-256 implemented from scratch in C · full message schedule, compression function,'],
-      ['dim',      '    padding logic, and multi-block file hashing with correct big-endian byte handling'],
-      ['link',     '    <a href="https://github.com/lordvacuum" target="_blank">github.com/lordvacuum</a>'],
+      ['dim',      '    SHA-256 implemented from scratch via NIST guidelines · C'],
+      ['dim',      '    Full message scheduling, padding, endian conversion, and compression rounds via bitwise ops'],
+      ['link',     '    <a href="https://github.com/lordvacuum/SHA256-in-C" target="_blank">github.com/lordvacuum/SHA256-in-C</a>'],
       ['blank'],
     ],
     'cd education': () => [
@@ -202,7 +205,7 @@
       ['dim',      'Post-Quantum Cryptography · Blockchain · Operating Systems · Software Engineering'],
       ['blank'],
       ['response', 'research'],
-      ['dim',      'Entry-level research into post-quantum cryptographic algorithms'],
+      ['dim',      'Exploring the post-quantum cryptographic algorithm MQOM, a NIST Round 2 candidate'],
       ['blank'],
       ['response', 'leadership'],
       ['dim',      'President, Crypto Research Club @ Queens College'],
@@ -275,10 +278,12 @@
       ['response', 'cd education       — view education & research'],
       ['response', 'cd experience      — view experience'],
       ['response', 'cd interests       — view interests'],
+      ['response', 'cd contact         — get in touch'],
+      ['response', 'cd inspirations    — my goats'],
       ['response', 'whoami             — about me'],
       ['response', 'ls                 — list commands'],
       ['response', 'customize          — show theme menu'],
-      ['response', 'customize [theme]      — apply theme directly'],
+      ['response', 'customize <n>      — apply theme directly'],
       ['response', 'clear              — clear terminal'],
       ['response', 'help               — show this menu'],
       ['blank'],
@@ -288,7 +293,9 @@
     ],
     'ls': () => [
       ['blank'],
-      ['response', 'cd projects   cd education   cd experience   cd interests   whoami   customize   help   clear'],
+      ['response', 'projects   education   experience   interests   contact   inspirations'],
+      ['blank'],
+      ['dim',      'type: cd <folder>   e.g. cd projects'],
       ['blank'],
     ],
     'clear': () => { output.innerHTML = ''; return []; },
@@ -296,18 +303,85 @@
       ['blank'],
       ['response', 'jaskaran bains — cs student, crypto nerd, builder.'],
       ['dim',      'new york city. queens college cuny. graduating may 2027.'],
-      ['dim',      'crypto/defi · post-quantum crypto research · fintech · film photography'],
+      ['dim',      'swe · crypto/defi · fintech · post-quantum crypto · film photography'],
       ['blank'],
     ],
+    'cd contact': () => [
+      ['blank'], ['accent', '[ contact ]'], ['blank'],
+      ['link', '    <a href="mailto:jaskaranbains17@gmail.com">email</a>'],
+      ['link', '    <a href="https://www.linkedin.com/in/jasky-singh-3b878a38b/" target="_blank">linkedin</a>'],
+      ['link', '    <a href="https://github.com/lordvacuum" target="_blank">github</a>'],
+      ['link', '    <a href="https://www.instagram.com/CryptoResearchQC" target="_blank">instagram</a>'],
+      ['link', '    <a href="https://www.qc.cuny.edu/" target="_blank">queens college</a>'],
+      ['link', '    <a href="https://discord.com/users/465672712996519937" target="_blank">discord</a>'],
+      ['blank'],
+    ],
+    'cd inspirations': () => [
+      ['blank'], ['accent', '[ inspirations ]'], ['blank'],
+      ['response', 'alexander hamilton'],
+      ['dim',      '    built a financial system from nothing. wrote faster than anyone should.'],
+      ['blank'],
+      ['response', 'john von neumann'],
+      ['dim',      '    formalized the architecture every computer still runs on.'],
+      ['blank'],
+      ['response', 'kazuki takahashi'],
+      ['dim',      '    turned a card game into a mythology. proof that creative work outlives everything.'],
+      ['blank'],
+      ['response', 'rust cohle'],
+      ['dim',      '    the only fictional character who made nihilism feel like a superpower.'],
+      ['blank'],
+      ['response', 'johannes kepler'],
+      ['dim',      '    did orbital mechanics by hand. got it right.'],
+      ['blank'],
+      ['response', 'kurt gödel'],
+      ['dim',      '    proved that every system has limits. from inside the system.'],
+      ['blank'],
+      ['response', 'dewitt clinton'],
+      ['dim',      '    built the erie canal. put new york on the map literally.'],
+      ['blank'],
+      ['response', 'michio kaku'],
+      ['dim',      '    makes theoretical physics feel like something you could actually care about.'],
+      ['blank'],
+      ['response', 'edwin booth'],
+      ['dim',      '    greatest american actor of the 19th century. kept performing anyway.'],
+      ['blank'],
+      ['response', 'nusrat fateh ali khan'],
+      ['dim',      '    took qawwali to the entire world without changing what it was.'],
+      ['blank'],
+      ['response', 'terry davis'],
+      ['dim',      '    built an entire operating system alone. templeOS is one of a kind.'],
+      ['blank'],
+      ['response', 'kenichi yamamoto'],
+      ['dim',      '    made the rotary engine work when everyone said it couldn\'t.'],
+      ['blank'],
+      ['response', 'ian wright'],
+      ['dim',      '    pure passion. never pretended otherwise.'],
+      ['blank'],
+    ],
+    'sudo': () => [['response', 'nice try.'], ['blank']],
+    'rm -rf /': () => [['error', 'permission denied. nice try though.'], ['blank']],
+    'rm': (args) => args && args.includes('-rf')
+      ? [['error', 'permission denied. nice try though.'], ['blank']]
+      : [['error', 'command not found: rm'], ['dim', 'type help for available commands'], ['blank']],
+    'git log': () => [
+      ['blank'],
+      ['dim',      'commit a1f3c7d — add sha256 compression function'],
+      ['dim',      'commit 9b2e841 — fix biclass etl pipeline foreign key drops'],
+      ['dim',      'commit 4d7a023 — diabetes predictor: add junit test suite'],
+      ['dim',      'commit 2c1f998 — initial commit'],
+      ['blank'],
+    ],
+    'git': (args) => args === 'log' ? COMMANDS['git log']() : [['error', 'command not found: git ' + (args||'')], ['dim', 'try: git log'], ['blank']],
+    'ssh': () => [['dim', 'ssh: connect to host jaskaran.dev port 22: Connection refused'], ['blank']],
   };
 
   // ── completable list ───────────────────────────────────────────────────────
   const TOP_CMDS = [
     'cd projects', 'cd education', 'cd interests', 'cd experience',
-    'customize', 'help', 'ls', 'clear', 'whoami',
+    'cd contact', 'cd inspirations', 'customize', 'help', 'ls', 'clear', 'whoami',
   ];
 
-  const CD_TARGETS = ['projects', 'education', 'interests', 'experience'];
+  const CD_TARGETS = ['projects', 'education', 'interests', 'experience', 'contact', 'inspirations'];
 
   // project names completable via "cd projects/<name>" or as easter egg "open <name>"
   const PROJECT_NAMES = ['diabetes-predictor', 'biclass-db', 'sha256-c'];
