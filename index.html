@@ -86,6 +86,8 @@
     .line.error { color: #e06c75; padding-left: 1rem; }
     .line.suggestion { color: var(--dim); padding-left: 1rem; font-size: 12px; }
     .line.tab-hint { color: var(--dim); padding-left: 1rem; font-size: 12px; letter-spacing: 0.03em; }
+    .line.photo { padding-left: 1rem; }
+    .line.photo img { width: 520px; max-width: 100%; display: block; margin-bottom: 0.75rem; border: 1px solid var(--dim); }
 
     .input-row { display: flex; align-items: center; }
     .prompt-sign { color: var(--accent); margin-right: 0.5rem; flex-shrink: 0; }
@@ -110,7 +112,7 @@
   </div>
 
   <div class="bio">
-    <p>Computer science student based in New York, minoring in math and data analytics. I'm interested in how software intersects with finance. I follow crypto and DeFi closely, build things on the side, and spend too much time on Crypto Twitter.</p>
+    <p>Computer science student based in New York, minoring in math and data analytics. I'm interested in how software intersects with finance — I follow crypto and DeFi closely, build things on the side, and spend too much time on Crypto Twitter.</p>
     <p>Currently finishing my BS at Queens College CUNY, president of the Crypto Research Club, doing some entry-level research into post-quantum cryptographic algorithms, and exploring the fintech and blockchain space.</p>
     <p>I like film photography, biking, and cars. Sometimes I ship things.</p>
   </div>
@@ -248,6 +250,32 @@
       ['response', 'music production  ·  video editing  ·  biking  ·  anime'],
       ['blank'],
     ],
+    'cd film': () => {
+      const BASE = 'https://pub-a123de30f26849478c355ca2da60d6c6.r2.dev/';
+      const ALL = [
+        '27208_JBA_001_18.jpg',
+        '27208_JBA_001_35.jpg',
+        '29281_JBA_001_25.jpg',
+        '29281_JBA_002_02.jpg',
+        '30338_JBA_001_15.jpg',
+        '30338_JBA_002_12.jpg',
+        '30338_JBA_002_14.jpg',
+        '30338_JBA_003_18.jpg',
+        '30338_JBA_003_35.jpg',
+        '43098_JBA_001_25.jpg',
+        '52514_JBA_001_19.jpg',
+      ];
+      // shuffle and pick 3
+      const shuffled = ALL.slice().sort(() => Math.random() - 0.5);
+      const picks = shuffled.slice(0, 3);
+      return [
+        ['blank'], ['accent', '[ film photography ]'], ['blank'],
+        ...picks.map(f => ['photo', \`<img src="\${BASE}\${f}" alt="film photo" loading="lazy">\`]),
+        ['blank'],
+        ['dim', 'run again for a different set'],
+        ['blank'],
+      ];
+    },
     'customize': (args) => {
       if (args) {
         const name = resolveTheme(args);
@@ -280,6 +308,7 @@
       ['response', 'cd interests       — view interests'],
       ['response', 'cd contact         — get in touch'],
       ['response', 'cd inspirations    — my goats'],
+      ['response', 'cd film            — film photography'],
       ['response', 'whoami             — about me'],
       ['response', 'ls                 — list commands'],
       ['response', 'customize          — show theme menu'],
@@ -293,7 +322,7 @@
     ],
     'ls': () => [
       ['blank'],
-      ['response', 'projects   education   experience   interests   contact   inspirations'],
+      ['response', 'projects   education   experience   interests   contact   inspirations   film'],
       ['blank'],
       ['dim',      'type: cd <folder>   e.g. cd projects'],
       ['blank'],
@@ -381,10 +410,10 @@
   // ── completable list ───────────────────────────────────────────────────────
   const TOP_CMDS = [
     'cd projects', 'cd education', 'cd interests', 'cd experience',
-    'cd contact', 'cd inspirations', 'customize', 'help', 'ls', 'clear', 'whoami',
+    'cd contact', 'cd inspirations', 'cd film', 'customize', 'help', 'ls', 'clear', 'whoami',
   ];
 
-  const CD_TARGETS = ['projects', 'education', 'interests', 'experience', 'contact', 'inspirations'];
+  const CD_TARGETS = ['projects', 'education', 'interests', 'experience', 'contact', 'inspirations', 'film'];
 
   // project names completable via "cd projects/<name>" or as easter egg "open <name>"
   const PROJECT_NAMES = ['diabetes-predictor', 'biclass-db', 'sha256-c'];
