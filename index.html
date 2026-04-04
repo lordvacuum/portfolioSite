@@ -270,7 +270,7 @@
       const picks = shuffled.slice(0, 3);
       return [
         ['blank'], ['accent', '[ film photography ]'], ['blank'],
-        ...picks.map(f => ['photo', \`<img src="\${BASE}\${f}" alt="film photo" loading="lazy">\`]),
+        ...picks.map(f => ['photo', '<img src="' + BASE + f + '" alt="film photo" loading="lazy">']),
         ['blank'],
         ['dim', 'run again for a different set'],
         ['blank'],
