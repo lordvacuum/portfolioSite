@@ -183,6 +183,69 @@
     return [['dim', 'theme applied: ' + name], ['blank']];
   }
 
+  // ── username word banks ───────────────────────────────────────────────────
+  const USERNAME_ADJ = [
+    'acid','active','agile','ancient','angry','arctic','ashen','atomic','azure','bare',
+    'bitter','black','blazing','blind','blunt','bold','brave','bright','broken','bronze',
+    'calm','careful','careless','carved','casual','chrome','clever','cold','cosmic',
+    'crisp','crimson','crooked','cryptic','cursed','cyan','dark','dead','deep',
+    'dense','digital','dim','distant','dizzy','dormant','dread','dry','dusty',
+    'electric','endless','epic','eternal','fallen','fancy','fast','fearless','fierce','final',
+    'fixed','flat','fleet','floating','flying','frozen','fuzzy','gentle','ghost',
+    'glitch','gloomy','glossy','golden','grand','grim','gruff','hollow','humble','hungry',
+    'hyper','idle','immortal','infinite','inner','iron','ivory','jagged','jolly','keen',
+    'kind','lazy','light','liquid','lone','lost','loud','lucky','lunar','mad',
+    'magic','massive','mellow','mighty','misty','modern','mystic','narrow','neon','noble',
+    'numb','obscure','odd','old','outer','pale','patient','pixel','plain','prime',
+    'proud','pure','quick','quiet','rapid','rare','raw','reckless','rigid','rising',
+    'rough','royal','ruined','rusty','sacred','savage','secret','sharp','shattered','silent',
+    'silver','simple','sleek','slick','slow','smooth','solar','solid','spectral','speedy',
+    'stellar','stern','still','strange','strong','sudden','super','swift','thin','tiny',
+    'tired','true','turbo','twisted','ultra','unknown','unstable','vacant','vague','vast',
+    'vile','violet','vivid','void','warm','wicked','wild','wise','worn','zero',
+    'blazing','bleak','burning','buzzing','chilly','cloudy','colossal','cracked','creeping','drifting',
+    'fading','flaming','gleaming','glowing','haunted','heavy','hidden','howling','icy','leaping',
+    'looming','lurking','melting','murky','phantom','plunging','roaring','rugged','rushing','scarlet',
+    'shadowy','shining','sinister','skeletal','soaring','spinning','sprawling','surging','towering','trembling',
+    'turbulent','venomous','volcanic','wandering','warped','weathered','whirling','withered','zealous'
+  ];
+
+  const USERNAME_NOUN = [
+    'abyss','ace','anchor','anvil','apex','archer','arrow','ash','atom','axe',
+    'badger','bane','baron','bastion','beacon','bear','beast','blade','blast',
+    'blaze','blizzard','block','bloom','bolt','bone','boulder','bridge','brute',
+    'bunker','byte','cage','cannon','canyon','captain','castle','cave','chain','champion',
+    'chaos','cipher','circuit','claw','cliff','cloud','cobra','comet','core','coyote',
+    'crater','creek','crest','crow','current','dagger','dawn','demon','desert','dome',
+    'doom','dragon','drift','drone','dune','dusk','dust','eagle','echo','empire',
+    'engine','epoch','falcon','fang','flare','flash','fleet','flux','fog','force',
+    'forge','fortress','fossil','fox','frost','fury','gate','ghost','giant','glacier',
+    'globe','golem','gorge','grave','grid','grove','guardian','gulf','hammer','harbor',
+    'hawk','hazard','herald','horizon','howl','hunter','hurricane','hydra','impact','isle',
+    'jaguar','javelin','jungle','knight','lance','lava','legend','lens','leopard','lightning',
+    'lion','lynx','manor','mantle','matrix','mesa','meteor','monk','moon',
+    'mountain','nebula','nexus','node','nomad','nova','ocean','omen','orbit','order',
+    'outlaw','overlord','owl','panther','peak','phantom','phoenix','pillar','pine','pioneer',
+    'pit','pixel','planet','plateau','plume','portal','predator','prime','prism','pulse',
+    'python','quake','ranger','raven','reef','relay','ridge','rift','river','rocket',
+    'rogue','ruin','runner','saber','sage','sentinel','serpent','shadow','shark','signal',
+    'skull','sky','slab','slayer','slope','soldier','specter','sphere','spike','spire',
+    'spirit','stalker','star','steel','stone','storm','striker','summit','surge','titan',
+    'tomb','tower','tracker','trail','trident','tundra','typhoon','unit','venom','vertex',
+    'void','volcano','vortex','voyager','wanderer','warden','warrior','wasp','wave',
+    'wolf','wraith','wyvern','zero','zone','zenith','zephyr','ram','raptor','reaper',
+    'rifle','ripple','road','root','reign','shard','shield','shore','siege','siren',
+    'slate','smoke','sniper','source','spark','spawn','spear','sphinx','spider',
+    'spine','spiral','splinter','spring','squad','stag','stamp','static','statue','steam',
+    'steppe','sting','strain','stream','strider','swarm','sword','system'
+  ];
+
+  function randomUsername() {
+    const adj  = USERNAME_ADJ[Math.floor(Math.random() * USERNAME_ADJ.length)];
+    const noun = USERNAME_NOUN[Math.floor(Math.random() * USERNAME_NOUN.length)];
+    return adj + noun.charAt(0).toUpperCase() + noun.slice(1);
+  }
+
   // ── command table ─────────────────────────────────────────────────────────
   const COMMANDS = {
     'cd projects': () => [
@@ -276,7 +339,6 @@
         'xxxq.png',
         '52514_JBA_001_19.jpg',
       ];
-      // shuffle and pick 3
       const shuffled = ALL.slice().sort(() => Math.random() - 0.5);
       const picks = shuffled.slice(0, 3);
       return [
@@ -311,6 +373,11 @@
         ['blank'],
       ];
     },
+    'username': () => [
+      ['blank'],
+      ['accent', randomUsername()],
+      ['blank'],
+    ],
     'help': () => [
       ['blank'], ['accent', '[ available commands ]'], ['blank'],
       ['response', 'cd projects        — view projects'],
@@ -322,6 +389,7 @@
       ['response', 'cd film            — film photography'],
       ['response', 'whoami             — about me'],
       ['response', 'ls                 — list commands'],
+      ['response', 'username           — generate a random username'],
       ['response', 'customize          — show theme menu'],
       ['response', 'customize <n>      — apply theme directly'],
       ['response', 'clear              — clear terminal'],
@@ -421,17 +489,11 @@
   // ── completable list ───────────────────────────────────────────────────────
   const TOP_CMDS = [
     'cd projects', 'cd education', 'cd interests', 'cd experience',
-    'cd contact', 'cd inspirations', 'cd film', 'customize', 'help', 'ls', 'clear', 'whoami',
+    'cd contact', 'cd inspirations', 'cd film', 'customize', 'help', 'ls', 'clear', 'whoami', 'username',
   ];
 
   const CD_TARGETS = ['projects', 'education', 'interests', 'experience', 'contact', 'inspirations', 'film'];
-
-  // project names completable via "cd projects/<name>" or as easter egg "open <name>"
   const PROJECT_NAMES = ['diabetes-predictor', 'biclass-db', 'sha256-c'];
-
-  // interest/education sub-tokens (just for completeness, completable after their parent cmd)
-  const INTEREST_TOKENS = ['film-photography', 'crypto', 'defi', 'automotive', 'music-production', 'biking', 'anime'];
-  const EDUCATION_TOKENS = ['coursework', 'research', 'leadership'];
 
   // ── parser & dispatcher ───────────────────────────────────────────────────
   function dispatch(raw) {
@@ -470,22 +532,18 @@
 
   // ── tab completion ─────────────────────────────────────────────────────────
   function getCompletionPool(val) {
-    // customize <theme>
     if (val.startsWith('customize ')) {
       const prefix  = val.slice('customize '.length);
       return THEME_NAMES.filter(t => t.startsWith(prefix)).map(t => 'customize ' + t);
     }
-    // cd <target> — complete the target after "cd "
     if (val.startsWith('cd ')) {
       const prefix = val.slice('cd '.length);
       return CD_TARGETS.filter(t => t.startsWith(prefix)).map(t => 'cd ' + t);
     }
-    // open <project> — hidden easter-egg completions
     if (val.startsWith('open ')) {
       const prefix = val.slice('open '.length);
       return PROJECT_NAMES.filter(p => p.startsWith(prefix)).map(p => 'open ' + p);
     }
-    // top-level
     return TOP_CMDS.filter(c => c.startsWith(val));
   }
 
