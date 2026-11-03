@@ -116,12 +116,12 @@
 
   <div class="header">
     <div class="name">jaskaran bains</div>
-    <div class="tagline">cs @ queens college &nbsp;·&nbsp; pres @ crypto research</div>
+    <div class="tagline">cs @ queens college &nbsp;·&nbsp; pres @ finance society</div>
   </div>
 
   <div class="bio">
     <p>Computer science student based in New York, minoring in math and data analytics. I'm interested in how software intersects with finance. I follow crypto and DeFi closely, build things on the side, and spend too much time on Crypto Twitter.</p>
-    <p>Currently finishing my BS at Queens College CUNY, president of the Crypto Research Club, doing some entry-level research into post-quantum cryptographic algorithms, and exploring the fintech and blockchain space.</p>
+    <p>Currently finishing my BS at Queens College CUNY, president of the Finance Society, doing some entry-level research into post-quantum cryptographic algorithms, and exploring the fintech and blockchain space.</p>
     <p>I like film photography, biking, and cars. Sometimes I ship things.</p>
   </div>
 
@@ -266,23 +266,26 @@
       ['dim',      '    Full message scheduling, padding, endian conversion, and compression rounds via bitwise ops'],
       ['link',     '    <a href="https://github.com/lordvacuum/SHA256-in-C" target="_blank">github &rarr;</a>'],
       ['blank'],
+      ['response', 'ghostnames'],
+      ['dim',      '    Temporary Ethereum identities for private crypto payments · TypeScript, Next.js'],
+      ['dim',      '    Expiring ENS subnames mapped to burner wallets, with gasless payments and reduced on chain linkability'],
+      ['link',     '    <a href="https://github.com/RySUp45/ghostname" target="_blank">github &rarr;</a>'],
+      ['blank'],
+
+
+
+
+
     ],
     'cd education': () => [
       ['blank'], ['accent', '[ education ]'], ['blank'],
       ['response', 'Queens College, CUNY'],
       ['dim',      'B.S. Computer Science — graduating May 2027'],
-      ['dim',      'Minors: Mathematics · Data Analytics'],
+      ['dim',      'Minors: Data Analytics'],
       ['blank'],
       ['response', 'relevant coursework'],
       ['dim',      'Data Structures & Algorithms · Theory of Computation · Database Systems'],
-      ['dim',      'Post-Quantum Cryptography · Blockchain · Operating Systems · Software Engineering'],
-      ['blank'],
-      ['response', 'research'],
-      ['dim',      'Exploring the post-quantum cryptographic algorithm MQOM, a NIST Round 2 candidate'],
-      ['blank'],
-      ['response', 'leadership'],
-      ['dim',      'President, Crypto Research Club @ Queens College'],
-      ['dim',      'Workshops, guest speakers, fintech panels, onchain analysis sessions'],
+      ['dim',      'Post-Quantum Cryptography · Machine Learning · Operating Systems · Software Engineering'],
       ['blank'],
       ['response', 'Aviation Career & Technical High School'],
       ['dim',      'Long Island City, NY · June 2019'],
@@ -291,20 +294,25 @@
     ],
     'cd experience': () => [
       ['blank'], ['accent', '[ experience ]'], ['blank'],
-      ['response', 'social media manager — deBridge'],
-      ['dim',      'Remote · Apr 2024 – May 2024'],
-      ['dim',      'Ran content for a DeFi protocol on Crypto Twitter. Tracked onchain sentiment,'],
-      ['dim',      'surfaced insights to the marketing team, grew community engagement.'],
-      ['blank'],
-      ['response', 'line cook — 5 Steak'],
-      ['dim',      'Queens, NY · Dec 2023 – Sep 2025'],
-      ['dim',      'Prepped and managed a kitchen station in a fast-paced environment.'],
-      ['dim',      'Handled daily food prep, inventory, and deliveries. Reliable team player.'],
+      ['response', 'president — Finance Society, Queens College'],
+      ['dim',      'Sep 2024 – Present'],
+      ['dim',      'Founded and lead a 40+ member organization hosting fintech speaker panels'],
+      ['dim',      'and on-chain analysis workshops, building a recurring student community around DeFi and Web3.'],
       ['blank'],
       ['response', 'taxi driver — NYC TLC'],
       ['dim',      'Manhattan, NY · Jun 2025 – Aug 2025'],
       ['dim',      'Operated a licensed NYC yellow cab across high-traffic routes.'],
       ['dim',      'Maintained safety standards and consistent on-time performance.'],
+      ['blank'],
+      ['response', 'social media manager — deBridge'],
+      ['dim',      'Remote · Apr 2024 – May 2024'],
+      ['dim',      'Launched and grew a deBridge-branded sister account through comedic content,'],
+      ['dim',      'tracking social sentiment to inform marketing strategy.'],
+      ['blank'],
+      ['response', 'line cook — 5 Steak'],
+      ['dim',      'Queens, NY · Sep 2022 – Jan 2023'],
+      ['dim',      'Prepped and managed a kitchen station in a fast-paced environment.'],
+      ['dim',      'Handled daily food prep, inventory, and deliveries. Reliable team player.'],
       ['blank'],
     ],
     'cd interests': () => [
@@ -392,6 +400,7 @@
       ['response', 'username           — generate a random username'],
       ['response', 'customize          — show theme menu'],
       ['response', 'customize <n>      — apply theme directly'],
+      ['response', 'man [command]      — show this menu'],
       ['response', 'clear              — clear terminal'],
       ['response', 'help               — show this menu'],
       ['blank'],
@@ -399,6 +408,7 @@
       ['dim', 'tip: ↑ ↓ arrows navigate command history'],
       ['blank'],
     ],
+    'man': () => COMMANDS.help(),
     'ls': () => [
       ['blank'],
       ['response', 'projects   education   experience   interests   contact   inspirations   film'],
@@ -432,9 +442,6 @@
       ['response', 'dewitt clinton'],
       ['dim',      '    built the erie canal. put new york on the map literally.'],
       ['blank'],
-      ['response', 'rust cohle'],
-      ['dim',      '    believed in himself even when nobody else did. true test of courage.'],
-      ['blank'],
       ['response', 'terry davis'],
       ['dim',      '    built an entire operating system alone. templeOS is one of a kind.'],
       ['blank'],
@@ -461,6 +468,9 @@
       ['response', 'kazuki takahashi'],
       ['dim',      '    created an atmosphere of magic that could be lived through a card game.'],
       ['dim',      '    proof that creative work outlives everything.'],
+      ['blank'],
+      ['response', 'michael david stevens'],
+      ['dim',      '    vsauce'],
       ['blank'],
       ['response', 'ian wright'],
       ['dim',      '    pure passion. never pretended otherwise.'],
